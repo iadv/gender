@@ -43,11 +43,11 @@ function SmokeCloud({ color, left, size, delay }: { color: string; left: string;
       style={{
         background: color,
         left: left,
-        top: `${Math.random() * 40}px`,
+        bottom: 0,
         width: `${size}px`,
         height: `${size}px`,
         borderRadius: '9999px',
-        opacity: 0.22 + Math.random() * 0.15, // more translucent
+        opacity: 0.22 + Math.random() * 0.15,
         filter: 'blur(14px)',
         animationDelay: `${delay}s`,
       }}
@@ -56,17 +56,25 @@ function SmokeCloud({ color, left, size, delay }: { color: string; left: string;
 }
 
 function Smoke({ show }: { show: boolean }) {
-  // Even more clouds for denser smoke
-  const clouds = Array.from({ length: 28 }).map((_, i) => [
-    <SmokeCloud key={`pink-${i}`} color="#fbb6ce" left={`${-80 + Math.random() * 80}px`} size={48 + Math.random() * 64} delay={i * 0.18} />,
-    <SmokeCloud key={`blue-${i}`} color="#93c5fd" left={`${20 + Math.random() * 80}px`} size={48 + Math.random() * 64} delay={i * 0.18} />
-  ]).flat();
+  // Pink smoke from left car, blue smoke from right car
+  const pinkClouds = Array.from({ length: 18 }).map((_, i) => (
+    <SmokeCloud key={`pink-${i}`} color="#fbb6ce" left={`0px`} size={48 + Math.random() * 64} delay={i * 0.18} />
+  ));
+  const blueClouds = Array.from({ length: 18 }).map((_, i) => (
+    <SmokeCloud key={`blue-${i}`} color="#93c5fd" left={`0px`} size={48 + Math.random() * 64} delay={i * 0.18} />
+  ));
+  // Pink smoke container (left car), blue smoke container (right car)
   return show ? (
-    <div className="absolute left-1/2 z-30" style={{ bottom: 96, transform: `translateX(-50%)`, pointerEvents: 'none', width: '100vw', height: '100vh' }}>
-      <div className="relative w-full h-full">
-        {clouds}
+    <>
+      {/* Pink car smoke: left edge of car is at calc(50vw - 120px) */}
+      <div className="absolute z-30" style={{ left: 'calc(50vw - 120px)', bottom: 96, pointerEvents: 'none', width: '120px', height: '320px' }}>
+        <div className="relative w-full h-full">{pinkClouds}</div>
       </div>
-    </div>
+      {/* Blue car smoke: move 48px closer to center for better alignment */}
+      <div className="absolute z-30" style={{ left: 'calc(50vw + 72px)', bottom: 96, pointerEvents: 'none', width: '120px', height: '320px' }}>
+        <div className="relative w-full h-full">{blueClouds}</div>
+      </div>
+    </>
   ) : null;
 }
 
@@ -82,12 +90,15 @@ export default function Home() {
   }));
 
   useEffect(() => {
-    let timeout1: NodeJS.Timeout, timeout2: NodeJS.Timeout;
     const startAnimation = () => {
       setAnimateCars(false);
       setShowSmoke(false);
-      setTimeout(() => setAnimateCars(true), 500); // Start cars after 0.5s
-      setTimeout(() => setShowSmoke(true), 1800); // Show smoke after cars crash
+      setTimeout(() => {
+        setAnimateCars(true);
+      }, 500); // Start cars after 0.5s
+      setTimeout(() => {
+        setShowSmoke(true);
+      }, 1700); // Show smoke after cars finish moving (1.2s car move + 0.5s delay)
     };
     startAnimation();
     const interval = setInterval(() => {
@@ -95,8 +106,6 @@ export default function Home() {
     }, 10000); // Repeat every 10s
     return () => {
       clearInterval(interval);
-      clearTimeout(timeout1);
-      clearTimeout(timeout2);
     };
   }, []);
 
@@ -111,7 +120,7 @@ export default function Home() {
       {/* Cars Animation */}
       <Car color="#f472b6" direction="left" animate={animateCars} />
       <Car color="#38bdf8" direction="right" animate={animateCars} />
-      {/* Smoke Animation */}
+      {/* Smoke Animation at each car's crash point */}
       <Smoke show={showSmoke} />
       {/* Invitation Image */}
       <div className="relative z-10 shadow-2xl rounded-3xl overflow-hidden border-4 border-white max-w-md w-full">
@@ -128,8 +137,8 @@ export default function Home() {
         }
         @keyframes smoke-burst {
           0% { opacity: 0; transform: scale(0.5) translateY(0); }
-          40% { opacity: 0.5; transform: scale(1.1) translateY(-20px); }
-          100% { opacity: 0; transform: scale(2.2) translateY(-80vh); }
+          40% { opacity: 0.5; transform: scale(1.1) translateY(-40px); }
+          100% { opacity: 0; transform: scale(2.2) translateY(-220px); }
         }
         .animate-smoke-burst {
           animation: smoke-burst 3.2s linear infinite;
