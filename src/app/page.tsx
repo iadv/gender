@@ -1,103 +1,138 @@
+'use client';
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+
+function Balloon({ color, left, delay }: { color: string; left: number; delay: number }) {
+  return (
+    <div
+      className="absolute bottom-0 w-16 h-20 opacity-80 animated-balloon"
+      style={{
+        left: `${left}%`,
+        background: color,
+        borderRadius: '9999px',
+        animationDelay: `${delay}s`,
+      }}
+    >
+      <div className="w-2 h-8 bg-gray-300 mx-auto mt-20 rounded-full"></div>
+    </div>
+  );
+}
+
+function Car({ color, direction, animate }: { color: string; direction: 'left' | 'right'; animate: boolean }) {
+  return (
+    <div
+      className={`absolute bottom-24 z-20 ${direction === 'left' ? 'left-0' : 'right-0'} w-24 h-12 flex items-center justify-center transition-transform duration-700 ease-in-out`
+        + (animate ? ` car-${direction}-move` : '')}
+      style={{ pointerEvents: 'none' }}
+    >
+      <svg width="90" height="40" viewBox="0 0 90 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="15" width="70" height="15" rx="7" fill={color} />
+        <rect x="25" y="8" width="40" height="15" rx="7" fill={color} opacity="0.7" />
+        <circle cx="25" cy="32" r="6" fill="#222" />
+        <circle cx="65" cy="32" r="6" fill="#222" />
+      </svg>
+    </div>
+  );
+}
+
+function SmokeCloud({ color, left, size, delay }: { color: string; left: string; size: number; delay: number }) {
+  return (
+    <div
+      className={`absolute rounded-full opacity-70 animate-smoke-burst`}
+      style={{
+        background: color,
+        left: left,
+        top: `${Math.random() * 40}px`,
+        width: `${size}px`,
+        height: `${size}px`,
+        filter: 'blur(8px)',
+        animationDelay: `${delay}s`,
+      }}
+    />
+  );
+}
+
+function Smoke({ show }: { show: boolean }) {
+  // Even more clouds for denser smoke
+  const clouds = Array.from({ length: 24 }).map((_, i) => [
+    <SmokeCloud key={`pink-${i}`} color="#fbb6ce" left={`${-60 + Math.random() * 60}px`} size={48 + Math.random() * 48} delay={i * 0.18} />,
+    <SmokeCloud key={`blue-${i}`} color="#93c5fd" left={`${20 + Math.random() * 60}px`} size={48 + Math.random() * 48} delay={i * 0.18} />
+  ]).flat();
+  return show ? (
+    <div className="absolute bottom-24 left-1/2 z-30" style={{ transform: `translateX(-50%)`, pointerEvents: 'none' }}>
+      <div className="relative w-64 h-48">
+        {clouds}
+      </div>
+    </div>
+  ) : null;
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [animateCars, setAnimateCars] = useState(false);
+  const [showSmoke, setShowSmoke] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  // Balloons: alternating pink and blue, random left and delay
+  const balloons = Array.from({ length: 10 }).map((_, i) => ({
+    color: i % 2 === 0 ? 'linear-gradient(135deg, #fbb6ce 60%, #f472b6 100%)' : 'linear-gradient(135deg, #93c5fd 60%, #38bdf8 100%)',
+    left: 10 + Math.random() * 80,
+    delay: Math.random() * 5,
+  }));
+
+  useEffect(() => {
+    let timeout1: NodeJS.Timeout, timeout2: NodeJS.Timeout;
+    const startAnimation = () => {
+      setAnimateCars(false);
+      setShowSmoke(false);
+      setTimeout(() => setAnimateCars(true), 500); // Start cars after 0.5s
+      setTimeout(() => setShowSmoke(true), 1800); // Show smoke after cars crash
+    };
+    startAnimation();
+    const interval = setInterval(() => {
+      startAnimation();
+    }, 10000); // Repeat every 10s
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+    };
+  }, []);
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-100 via-white to-blue-100 overflow-hidden">
+      {/* Animated Balloons */}
+      <div className="absolute inset-0 pointer-events-none">
+        {balloons.map((b, i) => (
+          <Balloon key={i} color={b.color} left={b.left} delay={b.delay} />
+        ))}
+      </div>
+      {/* Cars Animation */}
+      <Car color="#f472b6" direction="left" animate={animateCars} />
+      <Car color="#38bdf8" direction="right" animate={animateCars} />
+      {/* Smoke Animation */}
+      <Smoke show={showSmoke} />
+      {/* Invitation Image */}
+      <div className="relative z-10 shadow-2xl rounded-3xl overflow-hidden border-4 border-white max-w-md w-full">
+        <Image src="/invite.jpeg" alt="Invitation" width={600} height={900} className="w-full h-auto block" priority />
+      </div>
+      <style>{`
+        .car-left-move {
+          transform: translateX(calc(50vw - 120px));
+          transition: transform 1.2s cubic-bezier(0.7,1.5,0.7,1.1);
+        }
+        .car-right-move {
+          transform: translateX(calc(-50vw + 120px));
+          transition: transform 1.2s cubic-bezier(0.7,1.5,0.7,1.1);
+        }
+        @keyframes smoke-burst {
+          0% { opacity: 0; transform: scale(0.5); }
+          40% { opacity: 0.8; transform: scale(1.1); }
+          100% { opacity: 0; transform: scale(1.6); }
+        }
+        .animate-smoke-burst {
+          animation: smoke-burst 2.2s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
