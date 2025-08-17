@@ -39,14 +39,16 @@ function Car({ color, direction, animate }: { color: string; direction: 'left' |
 function SmokeCloud({ color, left, size, delay }: { color: string; left: string; size: number; delay: number }) {
   return (
     <div
-      className={`absolute rounded-full opacity-70 animate-smoke-burst`}
+      className={`absolute animate-smoke-burst`}
       style={{
         background: color,
         left: left,
         top: `${Math.random() * 40}px`,
         width: `${size}px`,
         height: `${size}px`,
-        filter: 'blur(8px)',
+        borderRadius: '9999px',
+        opacity: 0.22 + Math.random() * 0.15, // more translucent
+        filter: 'blur(14px)',
         animationDelay: `${delay}s`,
       }}
     />
@@ -55,13 +57,13 @@ function SmokeCloud({ color, left, size, delay }: { color: string; left: string;
 
 function Smoke({ show }: { show: boolean }) {
   // Even more clouds for denser smoke
-  const clouds = Array.from({ length: 24 }).map((_, i) => [
-    <SmokeCloud key={`pink-${i}`} color="#fbb6ce" left={`${-60 + Math.random() * 60}px`} size={48 + Math.random() * 48} delay={i * 0.18} />,
-    <SmokeCloud key={`blue-${i}`} color="#93c5fd" left={`${20 + Math.random() * 60}px`} size={48 + Math.random() * 48} delay={i * 0.18} />
+  const clouds = Array.from({ length: 28 }).map((_, i) => [
+    <SmokeCloud key={`pink-${i}`} color="#fbb6ce" left={`${-80 + Math.random() * 80}px`} size={48 + Math.random() * 64} delay={i * 0.18} />,
+    <SmokeCloud key={`blue-${i}`} color="#93c5fd" left={`${20 + Math.random() * 80}px`} size={48 + Math.random() * 64} delay={i * 0.18} />
   ]).flat();
   return show ? (
-    <div className="absolute bottom-24 left-1/2 z-30" style={{ transform: `translateX(-50%)`, pointerEvents: 'none' }}>
-      <div className="relative w-64 h-48">
+    <div className="absolute left-1/2 z-30" style={{ bottom: 96, transform: `translateX(-50%)`, pointerEvents: 'none', width: '100vw', height: '100vh' }}>
+      <div className="relative w-full h-full">
         {clouds}
       </div>
     </div>
@@ -125,12 +127,12 @@ export default function Home() {
           transition: transform 1.2s cubic-bezier(0.7,1.5,0.7,1.1);
         }
         @keyframes smoke-burst {
-          0% { opacity: 0; transform: scale(0.5); }
-          40% { opacity: 0.8; transform: scale(1.1); }
-          100% { opacity: 0; transform: scale(1.6); }
+          0% { opacity: 0; transform: scale(0.5) translateY(0); }
+          40% { opacity: 0.5; transform: scale(1.1) translateY(-20px); }
+          100% { opacity: 0; transform: scale(2.2) translateY(-80vh); }
         }
         .animate-smoke-burst {
-          animation: smoke-burst 2.2s linear infinite;
+          animation: smoke-burst 3.2s linear infinite;
         }
       `}</style>
     </div>
